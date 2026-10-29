@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pavelab"
+version = "0.1.0"
+description = "Open-source pavement condition (ASTM D6433 procedure), deterioration forecasting and life-cycle cost analysis"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Boluwatife Afolabi" }]
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.22", "scipy>=1.8"]
+keywords = ["pavement", "PCI", "ASTM D6433", "LCCA", "asset management", "LTPP", "deterioration"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pavelab"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
