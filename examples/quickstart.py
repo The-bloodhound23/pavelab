@@ -29,7 +29,7 @@ current = result.pci
 print(f"Forecast from PCI {current:.1f}:", np.round(model.forecast(current, [1, 3, 5, 10]), 1))
 print(f"Years until PCI 55: {model.years_to_threshold(current, 55):.1f}")
 
-# 3. Compare maintenance strategies over 20 years (illustrative unit costs, $/m2)
+# 3. Compare maintenance strategies over 50 years (illustrative unit costs, $/m2)
 crack_seal = pl.Treatment("Crack seal", unit_cost=1.5, pci_gain=4, min_pci=65, max_pci=85,
                           min_interval_years=4)
 thin_overlay = pl.Treatment("Thin overlay", unit_cost=18, pci_after=90, min_pci=50)
@@ -45,7 +45,7 @@ strategies = [
 ]
 
 area = 2400 * 7.4  # 2.4 km x 7.4 m
-for r in pl.compare_strategies(model, strategies, current, area, horizon=20, discount_rate=0.03):
+for r in pl.compare_strategies(model, strategies, current, area, horizon=50, discount_rate=0.03):
     s = r.summary()
     print(f"{s['strategy']:<12} NPV ${s['npv']:>12,.0f}  EUAC ${s['euac']:>10,.0f}  "
           f"avg PCI {s['average_pci']:>5}  min PCI {s['min_pci']:>5}  actions {s['actions']}")
