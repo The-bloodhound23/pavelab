@@ -6,7 +6,7 @@ pavelab covers the questions agencies budget around:
 
 - **What condition is this section in?** PCI using the ASTM D6433 procedure
 - **When will it hit an intervention threshold?** Non-linear deterioration models
-- **Which strategy costs least over 20 years?** Trigger-based LCCA with NPV and EUAC
+- **Which strategy costs least over 50 years?** Trigger-based LCCA with NPV and EUAC
 
 > **Status: v0.1 (alpha).** APIs may change. Licensed under MIT.
 
