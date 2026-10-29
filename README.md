@@ -1,4 +1,4 @@
-# pavelab
+# Pavelab
 
 **Open-source Python toolkit for pavement condition, deterioration forecasting and life-cycle cost analysis (LCCA).**
 
