@@ -1,0 +1,57 @@
+name: Dataset harvest
+
+# Weekly, or on demand from the Actions tab ("Run workflow").
+on:
+  schedule:
+    - cron: "17 11 * * 1"   # Mondays 11:17 UTC
+  workflow_dispatch:
+    inputs:
+      download:
+        description: "Download images whose licence permits commercial use"
+        type: boolean
+        default: false
+      queries:
+        description: "Extra search terms, comma-separated (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test harvester
+        run: |
+          pip install pytest
+          python -m pytest -q tools/harvester/tests
+      - name: Run harvester
+        working-directory: tools/harvester
+        env:
+          MAPILLARY_TOKEN: ${{ secrets.MAPILLARY_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          EXTRA: ${{ github.event.inputs.queries }}
+          DOWNLOAD: ${{ github.event.inputs.download }}
+        run: |
+          ARGS="--out ../../harvest"
+          if [ -n "$EXTRA" ]; then
+            ARGS="$ARGS --query pothole --query 'pavement crack' --query 'road damage'"
+            IFS=',' read -ra QS <<< "$EXTRA"
+            for q in "${QS[@]}"; do ARGS="$ARGS --query '$(echo "$q" | xargs)'"; done
+          fi
+          if [ "$DOWNLOAD" = "true" ]; then ARGS="$ARGS --download"; fi
+          eval python -m harvester.cli $ARGS
+      - name: Add summary to the run page
+        run: cat harvest/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pavement-harvest-${{ github.run_number }}
+          path: harvest/
+          retention-days: 30
