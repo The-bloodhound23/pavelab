@@ -33,6 +33,23 @@ pavelab (this repo, Python, MIT)          PaveLabAI beta (separate, static web a
 - **Engine:** `engine.js` re-implements anchored exponential decay plus banded trigger strategies and recommends the lowest-cost strategy per road that stays above the minimum PCI.
 - **Privacy:** no server. Data never leaves the browser.
 
+### `tools/harvester` (data acquisition, PR #2)
+- Licence-aware search across Hugging Face, Zenodo, Wikimedia Commons, Mapillary (token) and YouTube Creative Commons (API key), through official APIs only.
+- `licences.normalise()` keeps CC0, public domain, CC BY, CC BY-SA, ODC-By and ODbL. It excludes NC, ND and unknown licences, and flags share-alike.
+- Outputs a catalogue, a summary, and permitted images with `ATTRIBUTION.csv`. YouTube results are metadata only.
+- Runs weekly and on demand via `.github/workflows/harvest.yml`, with results attached to the run as an artifact.
+
+## Stack
+
+| Layer | Today | Planned |
+|---|---|---|
+| Engineering engine | `pavelab` (Python: numpy, scipy) | Same, exposed through a Python API service |
+| Training data | `tools/harvester` (licensed sources only) | Labelling workflow, then detector baseline |
+| Distress detection | none | Open-licence detector (e.g. YOLO or segmentation) fine-tuned on harvested, labelled data |
+| Web app | Static HTML, JS and Chart.js on Vercel (PaveLabAI beta) | App calls the pavelab service |
+| Automation | GitHub Actions: CI and weekly harvest | Same |
+| AI collaborators | Claude (implementation, integration) and ChatGPT/Codex (methodology, review), via pull requests | Same; LLMs explain results, never compute them |
+
 ## Target (staged, each stage gated on customer feedback)
 
 ```

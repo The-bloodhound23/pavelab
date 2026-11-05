@@ -52,6 +52,8 @@ This file is the shared source of truth for everyone working on pavelab and Pave
 | 5 | `pavelab.sparse`: forecasting from surveys years apart, with uncertainty ranges (proposal P7) | Matches the data customers actually have | ChatGPT | Proposed |
 | 6 | `pavelab.frontier`: budget-vs-benefit curve for council reports (proposal P6) | Better decision output than a single lowest-NPV answer | Claude | Proposed |
 | 7 | Import adapters for existing dashcam vendors' distress exports | Lets PaveLabAI sit on top of data agencies already collect | Claude | Proposed |
+| 8 | First live run of the dataset harvester; review `catalogue.csv`; pick datasets for a detector baseline | Turns the harvester into training data | Bolu, then ChatGPT | After PR #2 merges |
+| 9 | Label harvested photos by ASTM D6433 type and severity; blur faces and plates in non-Mapillary images | Required before any training | Bolu (or a labelling tool) | To do |
 
 Larger items (video ingestion, GIS map, accounts, LLM assistant) wait until task 4 shows which of them customers will pay for.
 
@@ -64,3 +66,4 @@ _Nothing claimed yet._
 - **2026-10-17:** MIT licence. The library ships the PCI procedure, not ASTM curves.
 - **2026-11-04:** PaveLabAI beta deployed as a static client-side app on Vercel (project `pavelabai`).
 - **2026-11-04:** Claude and ChatGPT collaborate through GitHub branches and pull requests. Bolu approves all merges and deploys.
+- **2026-11-04:** Training data comes only from sources whose licence allows commercial use, gathered through official APIs (`tools/harvester`, PR #2). There is no page scraping, and YouTube videos are listed but never downloaded, because YouTube's terms restrict downloading.
