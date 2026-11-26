@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 import sys
@@ -69,6 +70,17 @@ def write(items, out: Path):
                         "formats": " ".join(sorted({x["format"] for x in r["tabular_files"] if x["format"]}))})
 
 
+def _filename(r: dict, f: dict) -> str:
+    """Readable, filesystem-safe name plus a hash of the file URL, so different files never
+    collide after cleaning or truncation (e.g. `data/a.csv` vs `data_a.csv`)."""
+    base = re.sub(r"[^A-Za-z0-9._-]+", "_", f"{r['source']}_{r['id']}_{f['name'] or 'file'}")
+    stem, dot, ext = base.rpartition(".")
+    if not dot or len(ext) > 8:
+        stem, ext = base, ""
+    tag = hashlib.sha256(f["url"].encode()).hexdigest()[:10]
+    return f"{stem[:120]}-{tag}" + (f".{ext}" if ext else "")
+
+
 def download(items, out: Path, max_bytes=50_000_000, max_files=40, log=print) -> int:
     """Download tabular files of research_ok items, up to max_bytes each. Writes ATTRIBUTION.csv."""
     d = out / "files"
@@ -82,7 +94,7 @@ def download(items, out: Path, max_bytes=50_000_000, max_files=40, log=print) ->
                 continue
             if f.get("size") and int(f["size"]) > max_bytes:
                 continue
-            name = re.sub(r"[^A-Za-z0-9._-]+", "_", f"{r['source']}_{r['id']}_{f['name'] or 'file'}")[:150]
+            name = _filename(r, f)
             try:
                 req = urllib.request.Request(f["url"], headers={"User-Agent": USER_AGENT})
                 with urllib.request.urlopen(req, timeout=120) as resp:

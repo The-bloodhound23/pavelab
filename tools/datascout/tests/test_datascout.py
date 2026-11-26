@@ -90,3 +90,14 @@ def test_download_only_research_ok_and_size_capped(tmp_path, monkeypatch):
     assert n == 1
     assert "https://example.com/a.csv" not in got  # unknown licence never downloaded
     assert (tmp_path / "ATTRIBUTION.csv").read_text().count("\n") == 2
+
+
+def test_filenames_never_collide():
+    r = {"source": "huggingface", "id": "org/pavement"}
+    a = cli._filename(r, {"name": "data/a.csv", "url": "https://huggingface.co/x/data/a.csv"})
+    b = cli._filename(r, {"name": "data_a.csv", "url": "https://huggingface.co/x/data_a.csv"})
+    assert a != b and a.endswith(".csv") and b.endswith(".csv")
+    long1 = cli._filename(r, {"name": "x" * 300 + "1.csv", "url": "https://e.com/1"})
+    long2 = cli._filename(r, {"name": "x" * 300 + "2.csv", "url": "https://e.com/2"})
+    assert long1 != long2 and len(long1) < 150
+    assert cli._filename(r, {"name": "a.csv", "url": "https://e.com/a"}) == cli._filename(r, {"name": "a.csv", "url": "https://e.com/a"})
