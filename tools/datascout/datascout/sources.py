@@ -83,11 +83,25 @@ def ckan(base: str, name: str, page_base: str | None = None) -> Callable[..., li
     return search
 
 
+# Hugging Face `search` matches dataset *names* (e.g. "org/pavement-cracks"), so multi-word
+# phrases never match. Map each phrase to one name-friendly keyword instead.
+HF_KEYWORDS = ("pavement", "asphalt", "ltpp", "roughness", "rutting", "pothole",
+               "road-condition", "road-surface", "road-damage")
+
+
+def hf_keywords(q: str) -> list[str]:
+    words = q.lower().replace(" ", "-")
+    return [k for k in HF_KEYWORDS if k in words]
+
+
 def huggingface(q: str, fetch: FetchJSON = http_json, limit: int = 25) -> list[dict]:
-    url = "https://huggingface.co/api/datasets?" + urllib.parse.urlencode({"search": q, "limit": limit, "full": "true"})
-    data = fetch(url)
+    data = []
+    for keyword in hf_keywords(q):
+        got = fetch("https://huggingface.co/api/datasets?" + urllib.parse.urlencode(
+            {"search": keyword, "limit": limit, "full": "true"}))
+        data += got if isinstance(got, list) else []
     out = []
-    for d in data if isinstance(data, list) else []:
+    for d in data:
         lic = next((t.split(":", 1)[1] for t in d.get("tags", []) if t.startswith("license:")), None)
         files = [{"name": s.get("rfilename"), "url": f"https://huggingface.co/datasets/{d['id']}/resolve/main/{s.get('rfilename')}"}
                  for s in d.get("siblings", []) or []]

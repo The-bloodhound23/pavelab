@@ -101,3 +101,17 @@ def test_filenames_never_collide():
     long2 = cli._filename(r, {"name": "x" * 300 + "2.csv", "url": "https://e.com/2"})
     assert long1 != long2 and len(long1) < 150
     assert cli._filename(r, {"name": "a.csv", "url": "https://e.com/a"}) == cli._filename(r, {"name": "a.csv", "url": "https://e.com/a"})
+
+
+def test_huggingface_uses_name_keywords():
+    assert sources.hf_keywords("pavement condition index") == ["pavement"]
+    assert sources.hf_keywords("pavement rutting") == ["pavement", "rutting"]
+    assert sources.hf_keywords("international roughness index") == ["roughness"]
+    assert sources.hf_keywords("LTPP") == ["ltpp"]
+    assert sources.hf_keywords("road surface condition") == ["road-surface"]
+    assert sources.hf_keywords("salmon counts") == []
+    urls = []
+    sources.huggingface("pavement rutting", fetch=lambda u: urls.append(u) or [])
+    assert [u.split("search=")[1].split("&")[0] for u in urls] == ["pavement", "rutting"]
+    # Every default query reaches Hugging Face with at least one usable keyword.
+    assert all(sources.hf_keywords(q) for q in cli.DEFAULT_QUERIES)
