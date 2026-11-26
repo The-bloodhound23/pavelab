@@ -11,9 +11,9 @@ import re
 
 _OPEN = [
     (r"cc0|cc-?zero|public-?domain|pddl|us-pd|other-pd|^pd$", "Public domain / CC0", ""),
-    (r"open-?government-?licen[cs]e.*canada|ogl-?canada|^ogl-?ca|canada-open-government", "OGL-Canada",
+    (r"open-?government-?licen[cs]e.*canada|ogl-?canada|ca-ogl|ogl-lgo|canada-open-government", "OGL-Canada",
      "attribution required"),
-    (r"open-?government-?licen[cs]e.*ontario|ogl-?ontario", "OGL-Ontario", "attribution required"),
+    (r"open-?government-?licen[cs]e.*ontario|ogl-?ontario|ogl-?on(-|$)", "OGL-Ontario", "attribution required"),
     (r"cc-?by-?sa", "CC BY-SA", "share-alike: derived datasets keep the licence"),
     (r"cc-?by(?!-?nc)(?!-?nd)", "CC BY", "attribution required"),
     (r"odc-?by", "ODC-By", "attribution required"),

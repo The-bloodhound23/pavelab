@@ -10,7 +10,9 @@ from datascout.licences import screen
     ("cc-by-4.0", True, True),
     ("CC BY-NC 4.0", True, False),
     ("cc-by-nc-nd", True, False),
-    ("ca-ogl-lgo", None, None),            # unrecognised code -> manual check
+    ("ca-ogl-lgo", True, True),             # open.canada.ca licence id
+    ("OGL-ON-1.0", True, True),
+    ("Some custom terms", None, None),
     ("Open Government Licence - Canada", True, True),
     ("us-pd", True, True),
     ("cc-zero", True, True),
