@@ -1,0 +1,60 @@
+name: Data scout
+
+# Daily search for public, tabular pavement-performance datasets (official APIs only).
+# Results are attached to each run as an artifact; nothing is committed.
+on:
+  schedule:
+    - cron: "43 9 * * *"   # every day 09:43 UTC
+  workflow_dispatch:
+    inputs:
+      download:
+        description: "Also download small tabular files whose licence allows research use"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test
+        run: |
+          pip install pytest
+          python -m pytest -q tools/datascout/tests
+      # Yesterday's catalogue, so today's summary can list what is new.
+      - name: Restore previous catalogue
+        uses: actions/cache/restore@v4
+        with:
+          path: previous
+          key: datascout-${{ github.run_id }}
+          restore-keys: datascout-
+      - name: Run scout
+        working-directory: tools/datascout
+        env:
+          DOWNLOAD: ${{ github.event_name == 'schedule' || github.event.inputs.download == 'true' }}
+        run: |
+          ARGS="--out ../../scout"
+          if [ -f ../../previous/catalogue.json ]; then ARGS="$ARGS --previous ../../previous/catalogue.json"; fi
+          if [ "$DOWNLOAD" = "true" ]; then ARGS="$ARGS --download"; fi
+          python -m datascout.cli $ARGS
+      - name: Add summary to the run page
+        run: cat scout/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep today's catalogue for tomorrow
+        run: mkdir -p previous && cp scout/catalogue.json previous/
+      - uses: actions/cache/save@v4
+        with:
+          path: previous
+          key: datascout-${{ github.run_id }}
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pavement-datascout-${{ github.run_number }}
+          path: scout/
+          retention-days: 30
